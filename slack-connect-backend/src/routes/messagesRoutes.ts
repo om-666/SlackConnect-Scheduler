@@ -59,6 +59,21 @@ router.post('/schedule', async (req, res) => {
         return res.status(500).json({ error: 'Failed to schedule message' });
     }
 });
+router.get('/scheduled', async (req, res) => {
+    try {
+        const now = new Date();
+
+        const scheduledMessages = await ScheduledMessage.find({
+            sendAt: { $gte: now }
+        }).sort({ sendAt: 1 });  // Sort by time (earliest first)
+
+        return res.json({ messages: scheduledMessages });
+
+    } catch (error) {
+        console.error('Failed to fetch scheduled messages:', error);
+        return res.status(500).json({ error: 'Failed to fetch scheduled messages' });
+    }
+});
 
 
 export default router;
