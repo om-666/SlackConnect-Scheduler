@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';  // <-- Add this
 import channelsRoutes from './routes/channelsRoutes';
+import messagesRoutes from './routes/messagesRoutes';
+
 
 
 
@@ -11,6 +13,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/messages', messagesRoutes);
 
 // ADD THIS LINE to use /auth routes
 app.use('/auth', authRoutes);
