@@ -12,7 +12,12 @@ dotenv.config();  // Load environment variables early
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+
+
+app.use(cors({
+    origin: '*',  // Allow all origins (use specific domain in production)
+}));
+
 app.use(express.json());
 
 // API Routes
