@@ -1,6 +1,6 @@
 import express from 'express';
 import axios from 'axios';
-
+import ScheduledMessage from '../models/ScheduledMessage';
 const router = express.Router();
 
 // Send Immediate Message to a Slack Channel
@@ -35,5 +35,30 @@ router.post('/send', async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+router.post('/schedule', async (req, res) => {
+    const { accessToken, channelId, message, sendAt } = req.body;
+
+    if (!accessToken || !channelId || !message || !sendAt) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        const scheduledMessage = new ScheduledMessage({
+            accessToken,
+            channelId,
+            message,
+            sendAt: new Date(sendAt)
+        });
+
+        await scheduledMessage.save();
+
+        return res.json({ message: 'Message scheduled successfully!', id: scheduledMessage._id });
+
+    } catch (error) {
+        console.error('Error scheduling message:', error);
+        return res.status(500).json({ error: 'Failed to schedule message' });
+    }
+});
+
 
 export default router;
