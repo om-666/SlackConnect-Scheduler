@@ -3,14 +3,20 @@ import axios from 'axios';
 import ScheduledMessage from '../models/ScheduledMessage';
 
 export const startScheduler = () => {
+    console.log('🔄 Scheduler Cron Job Started...');
+
+    // Runs every minute
     cron.schedule('* * * * *', async () => {
         const now = new Date();
+        console.log(`🔍 Checking scheduled messages at: ${now.toISOString()}`);
 
-        const messagesToSend = await ScheduledMessage.find({ sendAt: { $lte: now } });
+        try {
+            const messagesToSend = await ScheduledMessage.find({ sendAt: { $lte: now } });
 
-        for (const msg of messagesToSend) {
-            try {
-                await axios.post('https://slack.com/api/chat.postMessage', {
+            for (const msg of messagesToSend) {
+                console.log(`🚀 Sending message to Channel: ${msg.channelId}`);
+                
+                const response = await axios.post('https://slack.com/api/chat.postMessage', {
                     channel: msg.channelId,
                     text: msg.message
                 }, {
@@ -20,14 +26,15 @@ export const startScheduler = () => {
                     }
                 });
 
-                console.log(`Message sent to channel ${msg.channelId} at ${msg.sendAt}`);
-
-                // Delete after sending
-                await ScheduledMessage.findByIdAndDelete(msg._id);
-
-            } catch (error) {
-                console.error('Failed to send scheduled message:', error);
+                if (response.data.ok) {
+                    console.log(`✅ Message Sent Successfully: ${msg.message}`);
+                    await ScheduledMessage.findByIdAndDelete(msg._id);
+                } else {
+                    console.error(`❌ Failed to send message:`, response.data.error);
+                }
             }
+        } catch (error) {
+            console.error('❌ Scheduler Error:', error);
         }
     });
 };
