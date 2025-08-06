@@ -1,50 +1,58 @@
 import express from 'express';
 import axios from 'axios';
 import ScheduledMessage from '../models/ScheduledMessage';
+import Token from '../models/tokenModel';  // <-- Import Token Model
+
 const router = express.Router();
 
-// Send Immediate Message to a Slack Channel
+// Send Immediate Message to a Slack Channel (Fetch Token from DB)
 router.post('/send', async (req, res) => {
-    const { accessToken, channelId, message } = req.body;
+    const { workspace, channelId, message } = req.body;
 
-    if (!accessToken || !channelId || !message) {
+    if (!workspace || !channelId || !message) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
+        const tokenDoc = await Token.findOne({ workspace });
+
+        if (!tokenDoc) {
+            return res.status(404).json({ error: 'Workspace token not found' });
+        }
+
         const response = await axios.post('https://slack.com/api/chat.postMessage', {
             channel: channelId,
             text: message
         }, {
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                Authorization: `Bearer ${tokenDoc.accessToken}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        const data = response.data;
-
-        if (!data.ok) {
-            return res.status(400).json({ error: 'Failed to send message', details: data });
+        if (response.data.ok) {
+            return res.json({ message: 'Message sent successfully!', ts: response.data.ts });
+        } else {
+            return res.status(400).json({ error: 'Failed to send message', details: response.data });
         }
-
-        return res.json({ message: 'Message sent successfully!', ts: data.ts });
 
     } catch (error) {
         console.error('Error sending message:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-router.post('/schedule', async (req, res) => {
-    const { accessToken, channelId, message, sendAt } = req.body;
 
-    if (!accessToken || !channelId || !message || !sendAt) {
+// Schedule Message (Store workspace only, fetch token later in cron)
+router.post('/schedule', async (req, res) => {
+    const { workspace, channelId, message, sendAt } = req.body;
+
+    if (!workspace || !channelId || !message || !sendAt) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
         const scheduledMessage = new ScheduledMessage({
-            accessToken,
+            workspace,
             channelId,
             message,
             sendAt: new Date(sendAt)
@@ -59,6 +67,8 @@ router.post('/schedule', async (req, res) => {
         return res.status(500).json({ error: 'Failed to schedule message' });
     }
 });
+
+// List All Scheduled Messages (Upcoming)
 router.get('/scheduled', async (req, res) => {
     try {
         const now = new Date();
@@ -75,6 +85,7 @@ router.get('/scheduled', async (req, res) => {
     }
 });
 
+// Cancel Scheduled Message
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 

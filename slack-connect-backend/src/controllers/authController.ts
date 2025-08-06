@@ -2,6 +2,7 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import Token from '../models/tokenModel';  // <-- Import Token Model
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ export const slackOAuthRedirect = (req: Request, res: Response) => {
   res.redirect(slackUrl);
 };
 
-// STEP 2: Slack OAuth Callback
+// STEP 2: Slack OAuth Callback & Store Token in MongoDB
 export const slackOAuthCallback = async (req: Request, res: Response) => {
   const code = req.query.code as string;
 
@@ -38,12 +39,19 @@ export const slackOAuthCallback = async (req: Request, res: Response) => {
     console.log('Access Token:', access_token);
     console.log('Connected Workspace:', team.name);
 
-    // For now, we'll just send token back as response
+    // 🟢 Save token in DB (Upsert if workspace already exists)
+    await Token.findOneAndUpdate(
+      { workspace: team.name },
+      { accessToken: access_token, workspace: team.name },
+      { upsert: true, new: true }
+    );
+
+    // Respond success
     res.json({
       message: 'OAuth Success!',
-      accessToken: access_token,
-      workspace: team.name,
+      workspace: team.name
     });
+
   } catch (error) {
     console.error('OAuth Callback Error:', error);
     res.status(500).send('OAuth Callback Failed');
