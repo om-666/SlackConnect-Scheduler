@@ -75,5 +75,22 @@ router.get('/scheduled', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedMessage = await ScheduledMessage.findByIdAndDelete(id);
+
+        if (!deletedMessage) {
+            return res.status(404).json({ error: 'Scheduled message not found' });
+        }
+
+        return res.json({ message: 'Scheduled message cancelled successfully!' });
+
+    } catch (error) {
+        console.error('Failed to cancel scheduled message:', error);
+        return res.status(500).json({ error: 'Failed to cancel scheduled message' });
+    }
+});
 
 export default router;
