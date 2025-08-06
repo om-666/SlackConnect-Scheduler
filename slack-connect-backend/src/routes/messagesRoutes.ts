@@ -52,7 +52,7 @@ router.post('/schedule', async (req, res) => {
 
     try {
         const scheduledMessage = new ScheduledMessage({
-            workspace,
+            workspace,   // <-- Ensure this is saved
             channelId,
             message,
             sendAt: new Date(sendAt)
@@ -67,6 +67,7 @@ router.post('/schedule', async (req, res) => {
         return res.status(500).json({ error: 'Failed to schedule message' });
     }
 });
+
 
 // List All Scheduled Messages (Upcoming)
 router.get('/scheduled', async (req, res) => {
