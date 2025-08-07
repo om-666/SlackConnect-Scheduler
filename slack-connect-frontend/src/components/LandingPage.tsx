@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./LandingPage.css"; // Import the CSS file
 
+const BACKEND_URL =
+  "https://slackconnect-scheduler.onrender.com/messages/slack/credentials";
+
 const LandingPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentFeature, setCurrentFeature] = useState(0);
@@ -15,6 +18,7 @@ const LandingPage: React.FC = () => {
     "Real-time Token Management",
   ];
 
+  // Rotating features animation
   useEffect(() => {
     setIsVisible(true);
     const interval = setInterval(() => {
@@ -23,31 +27,58 @@ const LandingPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Load from localStorage on component mount
+  // Load from localStorage on mount
   useEffect(() => {
     const savedClientId = localStorage.getItem("SLACK_CLIENT_ID");
     const savedClientSecret = localStorage.getItem("SLACK_CLIENT_SECRET");
-    
     if (savedClientId) setSlackClientId(savedClientId);
     if (savedClientSecret) setSlackClientSecret(savedClientSecret);
   }, []);
 
-  const handleSave = () => {
-    if (slackClientId.trim()) {
-      localStorage.setItem("SLACK_CLIENT_ID", slackClientId.trim());
+  // Send credentials to backend
+  const sendCredentialsToBackend = async (
+    clientId: string,
+    clientSecret: string
+  ) => {
+    try {
+      const res = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, clientSecret }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save credentials to backend");
+      }
+      return { success: true };
+    } catch (err: any) {
+      alert("Failed to save Slack credentials to backend: " + err.message);
+      return { success: false };
     }
-    if (slackClientSecret.trim()) {
-      localStorage.setItem("SLACK_CLIENT_SECRET", slackClientSecret.trim());
-    }
-    alert("Slack credentials saved successfully!");
   };
 
-  const handleAdd = () => {
+  const handleSave = async () => {
+    if (slackClientId.trim() && slackClientSecret.trim()) {
+      localStorage.setItem("SLACK_CLIENT_ID", slackClientId.trim());
+      localStorage.setItem("SLACK_CLIENT_SECRET", slackClientSecret.trim());
+      const result = await sendCredentialsToBackend(
+        slackClientId.trim(),
+        slackClientSecret.trim()
+      );
+      if (result.success) {
+        alert("Slack credentials saved successfully!");
+      }
+    } else {
+      alert("Please enter both Client ID and Client Secret");
+    }
+  };
+
+  const handleAdd = async () => {
     if (!slackClientId.trim() || !slackClientSecret.trim()) {
       alert("Please enter both Client ID and Client Secret");
       return;
     }
-    handleSave();
+    await handleSave();
   };
 
   return (
@@ -64,17 +95,16 @@ const LandingPage: React.FC = () => {
 
       {/* Main Content */}
       <div className={`main-content ${isVisible ? "visible" : ""}`}>
-        
         {/* Slack Configuration Form */}
         <div className="config-form">
           <div className="form-header">
             <h3 className="form-title">Slack Configuration Setup</h3>
             <p className="form-instructions">
-              Please enter your Slack app credentials to get started. 
+              Please enter your Slack app credentials to get started.
+              <br />
               You can find these in your Slack app dashboard.
             </p>
           </div>
-          
           <form className="credentials-form">
             <div className="form-group">
               <label htmlFor="slack-client-id" className="form-label">
@@ -113,10 +143,18 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="form-actions">
-              <button type="button" className="form-btn add-btn" onClick={handleAdd}>
+              <button
+                type="button"
+                className="form-btn add-btn"
+                onClick={handleAdd}
+              >
                 Add Credentials
               </button>
-              <button type="button" className="form-btn save-btn" onClick={handleSave}>
+              <button
+                type="button"
+                className="form-btn save-btn"
+                onClick={handleSave}
+              >
                 Save Changes
               </button>
             </div>
@@ -137,13 +175,20 @@ const LandingPage: React.FC = () => {
 
           <div className="feature-rotator">
             <span className="feature-prefix">✨ </span>
-            <span className="rotating-feature">{features[currentFeature]}</span>
+            <span className="rotating-feature">
+              {features[currentFeature]}
+            </span>
           </div>
 
           <div className="cta-section">
             <button
               className="primary-btn"
-              onClick={() => window.open("https://slackconnect-scheduler.onrender.com/auth/slack", "_blank")}
+              onClick={() =>
+                window.open(
+                  "https://slackconnect-scheduler.onrender.com/auth/slack",
+                  "_blank"
+                )
+              }
             >
               <span>Connect Workspace</span>
               <div className="btn-animation"></div>
@@ -160,19 +205,28 @@ const LandingPage: React.FC = () => {
 
         {/* Feature Cards */}
         <div className="features-grid">
-          <Link to="/send" className="feature-card card-4 no-underline-link">
+          <Link
+            to="/send"
+            className="feature-card card-4 no-underline-link"
+          >
             <div className="card-icon">⚡</div>
             <h3>Instant Messaging</h3>
             <p>Send messages to any channel immediately</p>
           </Link>
 
-          <Link to="/Schedule" className="feature-card card-3 no-underline-link">
+          <Link
+            to="/Schedule"
+            className="feature-card card-3 no-underline-link"
+          >
             <div className="card-icon">📅</div>
             <h3>Smart Scheduling</h3>
             <p>Schedule messages for perfect timing</p>
           </Link>
 
-          <Link to="/Scheduled" className="feature-card card-4 no-underline-link">
+          <Link
+            to="/Scheduled"
+            className="feature-card card-4 no-underline-link"
+          >
             <div className="card-icon">🎯</div>
             <h3>Message Management</h3>
             <p>Track and control all scheduled messages</p>
