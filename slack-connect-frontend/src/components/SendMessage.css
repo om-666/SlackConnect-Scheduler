@@ -1,0 +1,293 @@
+.send-msg-bg {
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+}
+
+/* BACK BUTTON STYLES */
+.back-btn {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50px;
+  padding: 0.8rem 1.5rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.back-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover .back-arrow {
+  transform: translateX(-3px);
+}
+
+.back-text {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.send-msg-glass {
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 28px;
+  box-shadow: 0 12px 48px 0 rgba(76,96,255,.13);
+  backdrop-filter: blur(18px);
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  z-index: 2;
+  animation: fadeInCard 0.9s cubic-bezier(.3,.68,.25,1.25);
+}
+
+@keyframes fadeInCard {
+  0% { opacity: 0; transform: translateY(40px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1);}
+}
+
+/* IMPROVED HEADER DESIGN */
+.send-msg-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.title-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.3));
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5));
+  }
+}
+
+.send-msg-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.highlight {
+  background: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 50%, #4ecdc4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: highlightShimmer 3s ease-in-out infinite;
+}
+
+@keyframes highlightShimmer {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.4));
+  }
+  33% {
+    filter: drop-shadow(0 0 12px rgba(255, 107, 107, 0.4));
+  }
+  66% {
+    filter: drop-shadow(0 0 10px rgba(76, 236, 196, 0.4));
+  }
+}
+
+.send-msg-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.9;
+  letter-spacing: 0.3px;
+}
+
+.send-msg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.13rem;
+}
+
+.send-msg-input {
+  background: rgba(255,255,255,0.21);
+  border: 1.5px solid rgba(255,255,255,0.17);
+  outline: none;
+  font-size: 1.14rem;
+  padding: 0.86rem 1.15rem;
+  border-radius: 12px;
+  color: #222853;
+  transition: background 0.25s, border 0.22s, box-shadow 0.22s;
+  font-weight: 500;
+  box-shadow: 0 2px 8px #1e293b11;
+}
+
+.send-msg-input:focus {
+  background: rgba(255,255,255,0.41);
+  border: 1.8px solid #ffd93d;
+  color: #3c425d;
+}
+
+.send-msg-input:disabled {
+  background: #e0e1e5aa;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.send-msg-btn {
+  margin-top: 0.5rem;
+  padding: 0.95rem 2.2rem;
+  border-radius: 32px;
+  font-size: 1.13rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: none;
+  color: white;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #74ebd5);
+  background-size: 200% 100%;
+  background-position: left;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  z-index: 1;
+}
+
+.send-msg-btn:hover:not(:disabled),
+.send-msg-btn:focus:not(:disabled) {
+  background-position: right;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4);
+}
+
+.send-msg-btn:disabled {
+  opacity: 0.73;
+  cursor: not-allowed;
+}
+
+.send-arrow {
+  font-size: 1.25em;
+  margin-left: 7px;
+  vertical-align: middle;
+  transition: transform 0.2s;
+}
+
+.send-msg-btn.loading .send-arrow {
+  display: none;
+}
+
+.btn-loader {
+  display: inline-block;
+  border: 3px solid #ffd93dbb;
+  border-radius: 50%;
+  border-top: 3px solid #ff6b6b;
+  width: 21px;
+  height: 21px;
+  animation: spinBtn 1s linear infinite;
+  margin: 0 auto;
+  vertical-align: middle;
+}
+
+@keyframes spinBtn {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
+
+.send-msg-error {
+  margin-top: 0.6rem;
+  color: #d90429;
+  background: rgba(255, 107, 107, 0.14);
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.98rem;
+  box-shadow: 0 1px 3px #ff6b6b22;
+  animation: fadeInShake 0.6s;
+}
+
+@keyframes fadeInShake {
+  0% {opacity: 0;transform: translateY(12px) scale(0.93);}
+  50% {transform: translateY(-4px) scale(1.03);}
+  100% {opacity: 1; transform: translateY(0) scale(1);}
+}
+
+.send-msg-success {
+  margin-top: 0.7rem;
+  color: #098e1e;
+  background: rgba(175,255,221,0.13);
+  border: 1px solid #b0f9c7a3;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px #36fab122;
+  animation: fadeInScale 0.75s;
+}
+
+@keyframes fadeInScale {
+  0% {opacity: 0; transform: scale(0.94);}
+  100% {opacity: 1; transform: scale(1);}
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .back-btn {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .send-msg-glass {
+    padding: 2.5rem 1.5rem 2rem 1.5rem;
+    max-width: 95vw;
+  }
+  
+  .title-icon {
+    font-size: 2.8rem;
+  }
+  
+  .send-msg-title { 
+    font-size: 2rem; 
+  }
+  
+  .send-msg-subtitle {
+    font-size: 1rem;
+  }
+}

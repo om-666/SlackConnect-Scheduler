@@ -70,13 +70,36 @@ router.post('/schedule', async (req, res) => {
 
 
 // List All Scheduled Messages (Upcoming)
-router.get('/scheduled', async (req, res) => {
+// router.get('/scheduled', async (req, res) => {
+//     try {
+//         const now = new Date();
+
+//         const scheduledMessages = await ScheduledMessage.find({
+//             sendAt: { $gte: now }
+//         }).sort({ sendAt: 1 });  // Sort by time (earliest first)
+
+//         return res.json({ messages: scheduledMessages });
+
+//     } catch (error) {
+//         console.error('Failed to fetch scheduled messages:', error);
+//         return res.status(500).json({ error: 'Failed to fetch scheduled messages' });
+//     }
+// });
+
+router.post('/scheduled', async (req, res) => {
     try {
+        const { workspace } = req.body;
+
+        if (!workspace) {
+            return res.status(400).json({ error: 'Workspace is required' });
+        }
+
         const now = new Date();
 
         const scheduledMessages = await ScheduledMessage.find({
+            workspace: workspace,
             sendAt: { $gte: now }
-        }).sort({ sendAt: 1 });  // Sort by time (earliest first)
+        }).sort({ sendAt: 1 });
 
         return res.json({ messages: scheduledMessages });
 
@@ -85,6 +108,7 @@ router.get('/scheduled', async (req, res) => {
         return res.status(500).json({ error: 'Failed to fetch scheduled messages' });
     }
 });
+
 
 // Cancel Scheduled Message
 router.delete('/:id', async (req, res) => {
