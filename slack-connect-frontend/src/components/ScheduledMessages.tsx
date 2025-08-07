@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { RingLoader, PulseLoader, BeatLoader } from "react-spinners";
-import "./ScheduledMessages.css"; // <-- Add this
+import "./ScheduledMessages.css";
 
 type ScheduledMessage = {
   _id: string;
@@ -27,29 +27,65 @@ const ScheduledMessages: React.FC = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const fetchMessages = () => {
+  // Workspace input state
+  const [workspaceName, setWorkspaceName] = useState("");
+  // To track when user submitted (so we don't fire on every keystroke)
+  const [lastSubmittedWorkspace, setLastSubmittedWorkspace] = useState("");
+
+  // Use POST per your spec!
+  const fetchMessages = async (workspaceForFetch?: string) => {
+    const workspace = workspaceForFetch !== undefined ? workspaceForFetch : workspaceName.trim();
+    if (!workspace) {
+      setMessages([]);
+      return;
+    }
     setLoading(true);
     setError(null);
-    fetch("https://slackconnect-scheduler.onrender.com/messages/scheduled")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then((data) => {
-        if (data && Array.isArray(data.messages)) {
-          setMessages(data.messages);
-        } else {
-          setMessages([]);
-        }
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    try {
+      const res = await fetch("https://slackconnect-scheduler.onrender.com/messages/scheduled", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspace }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      if (data && Array.isArray(data.messages)) {
+        setMessages(data.messages);
+      } else {
+        setMessages([]);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error fetching messages");
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Only fetch if a workspace is preset on mount (OPTIONAL)
   useEffect(() => {
-    fetchMessages();
     setIsVisible(true);
+    // Optionally, auto-fetch messages on load if workspaceName is preset here
+    // fetchMessages();
+    // eslint-disable-next-line
   }, []);
+
+  // Handler for pressing Enter in input or clicking "Search"
+  const handleWorkspaceSearch = (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (workspaceName.trim() && workspaceName.trim() !== lastSubmittedWorkspace) {
+      setLastSubmittedWorkspace(workspaceName.trim());
+      fetchMessages(workspaceName.trim());
+    }
+  };
+
+  // Optional: allow blur to trigger search (remove if you only want search on button/enter)
+  const handleInputBlur = () => {
+    if (workspaceName.trim() && workspaceName.trim() !== lastSubmittedWorkspace) {
+      setLastSubmittedWorkspace(workspaceName.trim());
+      fetchMessages(workspaceName.trim());
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this scheduled message?")) return;
@@ -75,6 +111,48 @@ const ScheduledMessages: React.FC = () => {
     window.location.href = '/landingpage';
   };
 
+  // The centered input box below Home
+  const workspaceInputBox = (
+    <form
+      className="workspace-header-center"
+      onSubmit={handleWorkspaceSearch}
+      autoComplete="off"
+      style={{ marginBottom: "2rem" }}
+    >
+      <label htmlFor="workspace-input" className="workspace-label">
+        Enter your workspace name
+      </label>
+      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        <input
+          id="workspace-input"
+          type="text"
+          className="workspace-input"
+          value={workspaceName}
+          onChange={e => setWorkspaceName(e.target.value)}
+          placeholder="Workspace name"
+          onBlur={handleInputBlur}
+        />
+        <button
+          type="submit"
+          className="workspace-search-btn"
+          style={{
+            padding: "0.6em 1.3em",
+            borderRadius: "1.2em",
+            border: "1px solid #ffd93d",
+            background: "#ffd93d",
+            color: "#222",
+            fontWeight: 600,
+            fontSize: "1em",
+            cursor: "pointer",
+            outline: "none",
+          }}
+        >
+          Search
+        </button>
+      </div>
+    </form>
+  );
+
   // Loader
   if (loading)
     return (
@@ -83,6 +161,7 @@ const ScheduledMessages: React.FC = () => {
           <span className="back-arrow">←</span>
           <span className="back-text">Home</span>
         </button>
+        {workspaceInputBox}
         <div className="bg-animation">
           <div className="floating-shapes">
             <div className="shape shape-1"></div>
@@ -122,6 +201,7 @@ const ScheduledMessages: React.FC = () => {
           <span className="back-arrow">←</span>
           <span className="back-text">Home</span>
         </button>
+        {workspaceInputBox}
         <div className="bg-animation">
           <div className="floating-shapes">
             <div className="shape shape-1"></div>
@@ -132,19 +212,20 @@ const ScheduledMessages: React.FC = () => {
         <div className="error-container">
           <div className="error-icon">⚠️</div>
           <div className="error-text">Error: {error}</div>
-          <button className="retry-btn" onClick={fetchMessages}>Try Again</button>
+          <button className="retry-btn" onClick={() => fetchMessages(lastSubmittedWorkspace)}>Try Again</button>
         </div>
       </div>
     );
 
   // Animated empty state
-  if (!messages.length)
+  if (workspaceName && !messages.length && !loading && !error)
     return (
       <div className="msg-container" id="scheduled-messages">
         <button className="back-btn" onClick={handleBackToHome}>
           <span className="back-arrow">←</span>
           <span className="back-text">Home</span>
         </button>
+        {workspaceInputBox}
         <div className="bg-animation">
           <div className="floating-shapes">
             <div className="shape shape-1"></div>
@@ -155,18 +236,20 @@ const ScheduledMessages: React.FC = () => {
         <div className="empty-container">
           <div className="empty-icon" aria-hidden="true">📭</div>
           <div className="empty-text">No scheduled messages found</div>
-          <div className="empty-subtext">Start scheduling your first message!</div>
+          <div className="empty-subtext">Try another workspace or schedule your first message!</div>
         </div>
       </div>
     );
 
-  // Normal main content
+  // Main content
   return (
     <div className="msg-container" id="scheduled-messages">
+      {/* Home Button */}
       <button className="back-btn" onClick={handleBackToHome}>
         <span className="back-arrow">←</span>
         <span className="back-text">Home</span>
       </button>
+      {workspaceInputBox}
 
       <div className="bg-animation">
         <div className="floating-shapes">

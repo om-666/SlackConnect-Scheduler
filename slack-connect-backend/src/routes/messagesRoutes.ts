@@ -1,7 +1,8 @@
 import express from 'express';
 import axios from 'axios';
 import ScheduledMessage from '../models/ScheduledMessage';
-import Token from '../models/tokenModel';  // <-- Import Token Model
+import Token from '../models/tokenModel'; 
+import SlackAppCredential from '../models/SlackAppCredential.js';
 
 const router = express.Router();
 
@@ -69,22 +70,7 @@ router.post('/schedule', async (req, res) => {
 });
 
 
-// List All Scheduled Messages (Upcoming)
-// router.get('/scheduled', async (req, res) => {
-//     try {
-//         const now = new Date();
-
-//         const scheduledMessages = await ScheduledMessage.find({
-//             sendAt: { $gte: now }
-//         }).sort({ sendAt: 1 });  // Sort by time (earliest first)
-
-//         return res.json({ messages: scheduledMessages });
-
-//     } catch (error) {
-//         console.error('Failed to fetch scheduled messages:', error);
-//         return res.status(500).json({ error: 'Failed to fetch scheduled messages' });
-//     }
-// });
+ 
 
 router.post('/scheduled', async (req, res) => {
     try {
@@ -126,6 +112,28 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('Failed to cancel scheduled message:', error);
         return res.status(500).json({ error: 'Failed to cancel scheduled message' });
+    }
+});
+
+router.post('/slack/credentials', async (req, res) => {
+    const { clientId, clientSecret } = req.body as { clientId?: string, clientSecret?: string };
+
+    if (!clientId || !clientSecret) {
+        return res.status(400).json({ error: 'Client ID and Client Secret are required' });
+    }
+
+    try {
+        // If you want to keep only one set of credentials, use upsert
+        await SlackAppCredential.findOneAndUpdate(
+            {},
+            { clientId, clientSecret },
+            { upsert: true, new: true }
+        );
+
+        return res.json({ message: 'Slack App credentials saved successfully!' });
+    } catch (error) {
+        console.error('Error saving Slack App credentials:', error);
+        return res.status(500).json({ error: 'Failed to save credentials' });
     }
 });
 
