@@ -44,6 +44,31 @@ router.post('/send', async (req, res) => {
 });
 
 // Schedule Message (Store workspace only, fetch token later in cron)
+// router.post('/schedule', async (req, res) => {
+//     const { workspace, channelId, message, sendAt } = req.body;
+
+//     if (!workspace || !channelId || !message || !sendAt) {
+//         return res.status(400).json({ error: 'Missing required fields' });
+//     }
+
+//     try {
+//         const scheduledMessage = new ScheduledMessage({
+//             workspace,   // <-- Ensure this is saved
+//             channelId,
+//             message,
+//             sendAt: new Date(sendAt)
+//         });
+
+//         await scheduledMessage.save();
+
+//         return res.json({ message: 'Message scheduled successfully!', id: scheduledMessage._id });
+
+//     } catch (error) {
+//         console.error('Error scheduling message:', error);
+//         return res.status(500).json({ error: 'Failed to schedule message' });
+//     }
+// });
+
 router.post('/schedule', async (req, res) => {
     const { workspace, channelId, message, sendAt } = req.body;
 
@@ -53,22 +78,25 @@ router.post('/schedule', async (req, res) => {
 
     try {
         const scheduledMessage = new ScheduledMessage({
-            workspace,   // <-- Ensure this is saved
+            workspace,
             channelId,
             message,
-            sendAt: new Date(sendAt)
+            sendAt: new Date(sendAt),
+            processing: false // Explicitly set this for reliability!
         });
 
         await scheduledMessage.save();
 
-        return res.json({ message: 'Message scheduled successfully!', id: scheduledMessage._id });
+        return res.json({
+            message: 'Message scheduled successfully!',
+            id: scheduledMessage._id
+        });
 
     } catch (error) {
         console.error('Error scheduling message:', error);
         return res.status(500).json({ error: 'Failed to schedule message' });
     }
 });
-
 
  
 
