@@ -235,8 +235,8 @@ const ScheduledMessages: React.FC = () => {
         </div>
         <div className="empty-container">
           <div className="empty-icon" aria-hidden="true">📭</div>
-          <div className="empty-text">No scheduled messages found</div>
-          <div className="empty-subtext">Try another workspace or schedule your first message!</div>
+          <div className="empty-text">Enter Your Work space Name </div>
+          <div className="empty-subtext"></div>
         </div>
       </div>
     );
