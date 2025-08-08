@@ -429,3 +429,8 @@ PORT=5000
 
  
 This architecture provides a robust, scalable foundation for scheduled Slack messaging with secure OAuth integration and reliable message delivery.
+
+
+# Flow Diagram 
+<img width="752" height="691" alt="image" src="https://github.com/user-attachments/assets/f797c05b-b1df-4a97-90e3-ad96451bf643" />
+
