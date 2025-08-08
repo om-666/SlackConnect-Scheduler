@@ -1,3 +1,6 @@
+# Live Demo of Application
+[▶ Watch the video](https://drive.google.com/file/d/1FLOHzqPAKWy1aEChmL5zYsUTj-qBCipV/view?usp=sharing)
+
 # SlackConnect Scheduler
 
 **SlackConnect Scheduler** is a robust full-stack application designed to securely connect to Slack workspaces using OAuth 2.0. With this tool, users can send instant messages, schedule messages for future delivery, and manage all scheduled communications efficiently. It features secure token management, a reliable scheduler, and a lightweight MongoDB database for persistence. The project is built with modern technologies: TypeScript, Node.js, Express, MongoDB, and a React frontend.
