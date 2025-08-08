@@ -194,9 +194,14 @@ const LandingPage: React.FC = () => {
               <div className="btn-animation"></div>
             </button>
 
-            <button
+             <button
               className="secondary-btn"
-              onClick={() => (window.location.href = "/app")}
+              onClick={() =>
+              window.open(
+                "https://drive.google.com/file/d/1FLOHzqPAKWy1aEChmL5zYsUTj-qBCipV/view?usp=sharing",
+                "_blank"
+              )
+              }
             >
               View Demo
             </button>
