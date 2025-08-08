@@ -437,3 +437,34 @@ This architecture provides a robust, scalable foundation for scheduled Slack mes
 # Flow Diagram 
 <img width="752" height="691" alt="image" src="https://github.com/user-attachments/assets/f797c05b-b1df-4a97-90e3-ad96451bf643" />
 
+
+# Challenges & Learnings
+
+### 1. First-Time Slack Development
+**Challenge:** I had never used Slack before.
+**Solution:** Spent significant time researching Slack’s documentation, OAuth flow, and message scheduling capabilities before starting the implementation.  
+**Learning:** How to quickly adapt to a completely new platform and translate documentation into a working, production-ready solution within a short time frame.
+
+---
+
+### 2. OAuth 2.0 & Token Lifecycle
+**Challenge:** Handling Slack’s OAuth 2.0 flow and ensuring continuous token validity without re-authentication.  
+**Solution:** Implemented a refresh token mechanism to automatically renew expired tokens.  
+**Learning:** Secure token storage and automated token lifecycle management.
+
+---
+
+### 3. Scheduling Accuracy
+**Challenge:** Reliably sending scheduled messages even after server restarts.  
+**Solution:** Stored scheduled messages in the database and reloaded them using a cron-based scheduler.  
+**Learning:** Designing fault-tolerant, restart-safe scheduling systems.
+
+---
+
+### 4. Slack API Rate Limits
+**Challenge:** Avoiding Slack’s API rate limit issues during high-frequency sends.  
+**Solution:** Built a queued execution system with retry and delay logic.  
+**Learning:** Importance of respecting API rate limits and building resilient request handling.
+
+---
+
